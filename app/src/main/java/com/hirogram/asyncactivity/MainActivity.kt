@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         list.add(city)
         city = mutableMapOf("name" to "神戸", "q" to "Kobe")
         list.add(city)
+        Log.d(DEBUG_TAG, "createList() is working")
 
         return list
     }
@@ -61,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         val backgroundReceiver = WeatherInfoBackgroundReceiver(handler, urlFull)
         val executeService = Executors.newSingleThreadExecutor()
         executeService.submit(backgroundReceiver)
-        Log.d("AsyncSample", "receiveWeatherInfo is working")
+        Log.d(DEBUG_TAG, "receiveWeatherInfo(urlFull) is working")
     }
 
     private inner class WeatherInfoBackgroundReceiver(handler: Handler, url: String): Runnable {
@@ -89,6 +90,7 @@ class MainActivity : AppCompatActivity() {
             }
             val postExecutor = WeatherInfoPostExecutor(result)
             _handler.post(postExecutor)
+            Log.d(DEBUG_TAG, "WeatherInfoBackgroundReceiver.run() is working")
         }
 
         private fun is2String(stream: InputStream): String {
@@ -123,7 +125,7 @@ class MainActivity : AppCompatActivity() {
             val tvWeatherDesc  =findViewById<TextView>(R.id.tvWeatherDesc)
             tvWeatherTelop.text = telop
             tvWeatherDesc.text = desc
-            Log.d("AsyncSample", "WeatherInfoPostExecutor is working")
+            Log.d(DEBUG_TAG, "WeatherInfoPostExecutor is working")
         }
     }
 
@@ -132,10 +134,10 @@ class MainActivity : AppCompatActivity() {
             val item = _list.get(position)
             val q = item.get("q")
             q?.let {
-                val urlFull = "$WEATHERINFO_URL&q=${q}&APPID=$APP_ID"
+                val urlFull = "$WEATHERINFO_URL&q=${q}&appid=$APP_ID"
                 receiveWeatherInfo(urlFull)
             }
-            Log.d("AsyncSample", "onItemClick is working")
+            Log.d(DEBUG_TAG, "onItemClick is working")
         }
     }
 }
