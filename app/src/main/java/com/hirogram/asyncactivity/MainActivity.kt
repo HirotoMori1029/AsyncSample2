@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val DEBUG_TAG = "AsyncSample"
-        private const val WEATHERINFO_URL = "api.openweathermap.org/data/2.5/weather?lang=ja"
+        private const val WEATHERINFO_URL = "https://api.openweathermap.org/data/2.5/weather?lang=ja"
         private const val APP_ID = "---"
     }
 
