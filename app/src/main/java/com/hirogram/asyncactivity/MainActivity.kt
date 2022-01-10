@@ -78,8 +78,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     @WorkerThread
-    private suspend fun weatherInfoBackgroundRunner(url: String): String{
-        val returnVal = withContext(Dispatchers.IO) {
+    private suspend fun weatherInfoBackgroundRunner(url: String): String {
+        return withContext(Dispatchers.IO) {
             var result = ""
             val url = URL(url)
             val con = url.openConnection() as? HttpURLConnection
@@ -100,7 +100,6 @@ class MainActivity : AppCompatActivity() {
             }
         result
         }
-        return returnVal
     }
 
     private fun is2String(stream: InputStream): String {
