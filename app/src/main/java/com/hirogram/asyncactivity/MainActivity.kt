@@ -7,6 +7,10 @@ import android.view.View
 import android.widget.*
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStream
@@ -59,38 +63,44 @@ class MainActivity : AppCompatActivity() {
             val q = item.get("q")
             q?.let {
                 val urlFull = "$WEATHERINFO_URL&q=${q}&appid=$APP_ID"
-                receiveWeatherInfo()
+                receiveWeatherInfo(urlFull)
             }
             Log.d(DEBUG_TAG, "onItemClick is working")
         }
     }
 
     @UiThread
-    private fun receiveWeatherInfo() {
-
+    private fun receiveWeatherInfo(urlFull: String) {
+        lifecycleScope.launch {
+            val result = weatherInfoBackgroundRunner(urlFull)
+            weatherInfoPostRunner(result)
+        }
     }
 
     @WorkerThread
-    private fun weatherInfoBackgroundRunner(url: String): String{
-        var result = ""
-        val url = URL(url)
-        val con = url.openConnection() as? HttpURLConnection
-        con?.let {
-            try {
-                it.connectTimeout = 1000
-                it.readTimeout = 1000
-                it.requestMethod = "GET"
-                it.connect()
-                val stream = it.inputStream
-                result = is2String(stream)
-                stream.close()
+    private suspend fun weatherInfoBackgroundRunner(url: String): String{
+        val returnVal = withContext(Dispatchers.IO) {
+            var result = ""
+            val url = URL(url)
+            val con = url.openConnection() as? HttpURLConnection
+            con?.let {
+                try {
+                    it.connectTimeout = 1000
+                    it.readTimeout = 1000
+                    it.requestMethod = "GET"
+                    it.connect()
+                    val stream = it.inputStream
+                    result = is2String(stream)
+                    stream.close()
+                }
+                catch (ex: SocketTimeoutException) {
+                    Log.w(DEBUG_TAG, "通信タイムアウト",ex)
+                }
+                it.disconnect()
             }
-            catch (ex: SocketTimeoutException) {
-                Log.w(DEBUG_TAG, "通信タイムアウト",ex)
-            }
-            it.disconnect()
+        result
         }
-        return result
+        return returnVal
     }
 
     private fun is2String(stream: InputStream): String {
